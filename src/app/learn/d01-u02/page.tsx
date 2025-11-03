@@ -1,29 +1,23 @@
-// src/app/learn/d01-u01/page.tsx
+// src/app/learn/d01-u02/page.tsx
 "use client";
 import { useMemo, useState } from "react";
 import Furigana from "@/components/Furigana";
-import { D01_U01, LessonBlock } from "@/content/d01-u01";
+import { D01_U02, LessonBlock } from "@/content/d01-u02";
 import LessonNav from "@/components/LessonNav";
 
-export default function LessonD01U01() {
+export default function LessonD01U02() {
   const [furiganaOn, setFuriganaOn] = useState(false);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [checked, setChecked] = useState(false);
 
-  const lesson = useMemo(() => D01_U01, []);
-
-  function setAns(key: string, val: string) {
-    setAnswers((p) => ({ ...p, [key]: val }));
-  }
-
-  function checkAll() {
-    setChecked(true);
-  }
+  const lesson = useMemo(() => D01_U02, []);
+  const setAns = (k: string, v: string) => setAnswers((p) => ({ ...p, [k]: v }));
+  const checkAll = () => setChecked(true);
 
   return (
     <main className="p-6 max-w-3xl mx-auto space-y-6">
       <header className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">D01-U01 こうかんほうそく</h1>
+        <h1 className="text-2xl font-bold">D01-U02 分配の考え</h1>
         <button
           onClick={() => setFuriganaOn((v) => !v)}
           className="border rounded px-3 py-1"
@@ -48,10 +42,7 @@ export default function LessonD01U01() {
       ))}
 
       <footer className="flex items-center gap-3 pt-2">
-        <button
-          onClick={checkAll}
-          className="bg-black text-white rounded px-4 py-2"
-        >
+        <button onClick={checkAll} className="bg-black text-white rounded px-4 py-2">
           こたえあわせ
         </button>
         {checked && (
@@ -61,8 +52,8 @@ export default function LessonD01U01() {
         )}
       </footer>
 
-      {/* ← ここが重要：JSX 内、</main> の直前に置く */}
-      <LessonNav currentId="D01-U01" />
+      {/* 重要：ナビは JSX の中、</main> の直前に置く */}
+      <LessonNav currentId="D01-U02" />
     </main>
   );
 }
@@ -90,15 +81,16 @@ function BlockView(props: {
   }
 
   if (b.kind === "example") {
+    // D01_U02 の examples: { left, right, note? } を想定
     return (
       <section className="space-y-2">
         {b.title && <h2 className="text-xl font-semibold">{b.title}</h2>}
         <ul className="list-disc pl-6 space-y-2">
-          {b.examples.map((ex, idx) => (
+          {b.examples.map((ex: any, idx: number) => (
             <li key={idx}>
-              <span className="font-mono">{ex.exprA}</span>{" "}
-              <span className="mx-1">と</span>{" "}
-              <span className="font-mono">{ex.exprB}</span>
+              <span className="font-mono">{ex.left}</span>{" "}
+              <span className="mx-1">→</span>{" "}
+              <span className="font-mono">{ex.right}</span>
               {ex.note && (
                 <>
                   {" "}
@@ -116,33 +108,23 @@ function BlockView(props: {
     return (
       <section className="space-y-3">
         {b.title && <h2 className="text-xl font-semibold">{b.title}</h2>}
-        {b.practices.map((q, idx) => {
+        {b.practices.map((q: any, idx: number) => {
           const key = `Q${b.id}-${idx}`;
           const val = answers[key] ?? "";
-          if (q.type === "choice") {
-            const correct = checked && val === q.answer;
+
+          if (q.type === "short") {
+            const correct = checked && norm(val) === norm(q.answer);
             return (
               <div key={key} className="border rounded p-3">
                 <p className="mb-2">
                   <Furigana text={q.stem} enabled={furiganaOn} gradeMax={3} />
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  {q.choices.map((c) => {
-                    const active = val === c;
-                    return (
-                      <button
-                        key={c}
-                        onClick={() => setAns(key, c)}
-                        className={
-                          "border rounded px-3 py-1 " +
-                          (active ? "bg-blue-600 text-white" : "")
-                        }
-                      >
-                        {c}
-                      </button>
-                    );
-                  })}
-                </div>
+                <input
+                  value={val}
+                  onChange={(e) => setAns(key, e.target.value)}
+                  className="border rounded px-2 py-1 w-60"
+                  placeholder="例）(7×5)+(7×3)"
+                />
                 {checked && (
                   <p
                     className={
@@ -155,19 +137,29 @@ function BlockView(props: {
                 )}
               </div>
             );
-          } else {
-            const correct = checked && normalize(val) === normalize(q.answer);
+          }
+
+          if (q.type === "choice") {
+            const correct = checked && val === q.answer;
             return (
               <div key={key} className="border rounded p-3">
                 <p className="mb-2">
                   <Furigana text={q.stem} enabled={furiganaOn} gradeMax={3} />
                 </p>
-                <input
-                  value={val}
-                  onChange={(e) => setAns(key, e.target.value)}
-                  className="border rounded px-2 py-1 w-40"
-                  placeholder="例）6×9"
-                />
+                <div className="flex flex-wrap gap-2">
+                  {q.choices.map((c: string) => (
+                    <button
+                      key={c}
+                      onClick={() => setAns(key, c)}
+                      className={
+                        "border rounded px-3 py-1 " +
+                        (val === c ? "bg-blue-600 text-white" : "")
+                      }
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
                 {checked && (
                   <p
                     className={
@@ -183,6 +175,8 @@ function BlockView(props: {
               </div>
             );
           }
+
+          return null;
         })}
       </section>
     );
@@ -191,6 +185,4 @@ function BlockView(props: {
   return null;
 }
 
-function normalize(s: string) {
-  return s.replace(/\s+/g, "").trim();
-}
+const norm = (s: string) => s.replace(/\s+/g, "").trim();
