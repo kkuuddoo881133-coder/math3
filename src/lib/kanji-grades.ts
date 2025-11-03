@@ -1,10 +1,22 @@
 // src/lib/kanji-grades.ts
-// 小1〜小3で学ぶ漢字（最小セット・あとで増やす）
-export const G1 = "一二三四五六七八九十上下左右大中小山川田口目耳口手足日月火水木金土".split("");
-export const G2 = "百千万空早草林森王石竹糸貝車雨".split(""); // ←仮の抜粋、あとで増強
-export const G3 = "数図海点直計線曜形角算間新学校時分秒道".split(""); // ←仮の抜粋、あとで増強
+export const G1 = (
+  "一二三四五六七八九十" +
+  "上下左右中大小" +
+  "山川田口目耳手足" +
+  "日月火水木金土" +
+  "人子女" +
+  "学校本文休" +
+  "玉犬虫貝車雨"
+).split("");
 
-// gradeMax までに“習っている”とみなす漢字の集合を作る
+export const G2 = (
+  "引羽雲園遠何科夏家歌画回会海絵外角楽活間丸岩顔汽記帰弓牛魚京強教近兄形計元言原戸古午後語工公広交光考行高黄合谷国黒今才細作算止市矢姉思紙寺自時室社弱首秋週春書少場所食心新親図数西声星晴切雪船線前組走多太体台地池知茶昼長鳥朝直通弟店点電刀冬当東答頭同道読内南肉馬売買麦半番父風分聞米歩母方北毎妹万明鳴毛門夜野友用曜来里理話"
+).split("");
+
+export const G3 = (
+  "悪安暗医委意育員飲院運泳駅央横屋温化荷界開階寒感漢岸起客究級宮急球去橋業曲局銀区苦具君係軽血決研県庫湖向幸港号根祭昨札刷殺察参産散残氏司試児治辞失借種周州拾終習集住重宿所暑助昭消商章勝乗植申身神真深進世整昔全相送想息速族他打対待代題炭短談着注柱丁帳調追定庭笛鉄転都度投島湯登等動童農波配倍箱畑発反坂板皮悲美鼻筆氷表秒病品負部服福物平返勉放味命面問夜野薬由油遊有予羊洋葉陽様落流旅両緑礼列練路"
+).split("");
+
 export function learnedKanjiSet(gradeMax = 3): Set<string> {
   const set = new Set<string>();
   if (gradeMax >= 1) G1.forEach(k => set.add(k));
@@ -13,10 +25,8 @@ export function learnedKanjiSet(gradeMax = 3): Set<string> {
   return set;
 }
 
-// 文字列に「未習漢字」が含まれるか（簡易判定）
 export function containsUnlearnedKanji(s: string, gradeMax = 3): boolean {
   const learned = learnedKanjiSet(gradeMax);
-  // おおざっぱ：CJK統合漢字の範囲だけ拾い、集合に無ければ未習
   for (const ch of s) {
     if (/[\u4E00-\u9FFF]/.test(ch) && !learned.has(ch)) return true;
   }

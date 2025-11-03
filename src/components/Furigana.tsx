@@ -1,8 +1,20 @@
+'use client';
+import React from "react";
 import { applyFuriganaWithDict } from "@/lib/furi";
 
-export function Furigana(props: { text: string; enabled?: boolean; gradeMax?: number }) {
-  const { text, enabled, gradeMax = 3 } = props;
-  if (!enabled) return <span>{text}</span>;
-  const html = applyFuriganaWithDict(text, true, gradeMax);
-  return <span dangerouslySetInnerHTML={{ __html: html }} />;
+type Props = {
+  text: string;
+  enabled?: boolean;   // default: true
+  gradeMax?: number;   // default: 3
+  className?: string;
+};
+
+export default function Furigana({
+  text,
+  enabled = true,
+  gradeMax = 3,
+  className,
+}: Props) {
+  const html = applyFuriganaWithDict(text, enabled, gradeMax);
+  return <span className={className} dangerouslySetInnerHTML={{ __html: html }} />;
 }

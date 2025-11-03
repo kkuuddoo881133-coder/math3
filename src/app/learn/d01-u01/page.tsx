@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Furigana } from "@/components/Furigana";
+import Furigana from "@/components/Furigana";
 
 export default function LessonD01U01() {
   const [furiganaOn, setFuriganaOn] = useState(false);
