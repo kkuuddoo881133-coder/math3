@@ -194,3 +194,13 @@ function BlockView(props: {
 function normalize(s: string) {
   return s.replace(/\s+/g, "").trim();
 }
+
+async function getHint(qid: string, level: 1|2|3, stem: string, userAnswer?: string) {
+  const r = await fetch("/api/hint", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ qid, level, stem, userAnswer, gradeMax: 3 }),
+  });
+  const data = await r.json();
+  return data.hint as string;
+}
