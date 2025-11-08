@@ -1,0 +1,120 @@
+学習アプリ開発ふりかえり（2025-11-03）
+今日やったこと（要約）
+
+テスト基盤の安定化
+
+vitest 起動エラー（Dynamic require of "fs"）を解消。
+
+jsdom と parse5 の ESModule 周りで発生した未ハンドルエラーを回避。
+
+UI テストは @vitest-environment happy-dom に切替、レンダリングテスト安定。
+
+学年漢字セット（G1〜G3）確定
+
+src/lib/kanji-grades.ts を最終版へ更新。
+
+containsUnlearnedKanji の判定テストを整備・グリーン化。
+
+ふりがな（ルビ）機構の確認
+
+未習漢字のみ <ruby> 付与の仕様でテスト追加（tests/Furigana.ui.test.tsx）。
+
+デフォルトエクスポートの取り扱いミス（named import）を修正し、UI テスト通過。
+
+教科書モードの2ページ実装
+
+D01-U01（こうかん法則）：導入→例題→練習の流れをReactで実装。
+
+D01-U02（分配の考え）：例題・練習（選択式＋短答式）を実装。
+
+LessonNav を導入（前/次/ホーム）。ページ末尾での回遊パターンを確立。
+
+仕様書の整備
+
+/docs/spec.md を作成。目的・機能一覧・ふりがな仕様・問題バンク仕様などを一枚に集約。
+
+OpenAIヒントAPIの組み込み（最小版）
+
+src/app/api/hint/route.ts を実装。
+
+環境変数：.env.local に OPENAI_API_KEY（必要なら OPENAI_PROJECT）、HINT_MODEL を設定。
+
+モデルのパラメータ差（max_tokens/temperature 非対応など）で詰まったが、**最小パラメータ（model+messagesのみ）**で安定化。
+
+ブラウザから fetch("/api/hint", {...}) で叩いて { ok: true, hint: "..." } を確認済み。
+
+主なハマりどころと対処
+
+UIテストの環境差異
+jsdom 経由で parse5 の ESM を require しようとして失敗 → happy-dom に切替して回避。
+
+コンポーネントの export 形態
+Furigana を default export しているのに named import していた → import を修正。
+
+Next.js ページ末尾に JSX が裸である問題
+<LessonNav ... /> の呼び出し位置をコンポーネントの return 内に移動して表示されるように修正。
+
+OpenAI API のパラメータ互換
+モデルにより max_tokens / max_output_tokens / temperature などが非対応 → まずは最小構成で通す方針に変更。
+
+429 / 課金・プロジェクト紐づけ
+キーとプロジェクトの整合をチェック。キー再発行→.env.local更新→開発サーバ再起動の導線を確立。
+
+いまのリポジトリ状態（ざっくり）
+
+テスト：pnpm test → すべてパス（ユニット＋簡易UI）
+
+ページ：/learn/d01-u01, /learn/d01-u02 正常表示
+
+ルビ：ON/OFF 切替可、未習漢字のみ付与
+
+ヒントAPI：/api/hint POST で稼働（最小構成）
+
+明日以降の計画（小さく刻む）
+A. ヒント機能のUI統合（教科書ページ）
+
+ ボタン「ヒント（1→2→3）」を練習カードに追加
+
+1回クリックごとに level を上げて再リクエスト（qid/stem/入力状況を渡す）
+
+連打防止（1秒スロットル or キュー）
+
+ エラーハンドリング：429/ネットワーク時はやさしい定型フォールバック文を表示
+
+ ロギング：console → 後でSheetsに送れるよう util を生やす
+
+B. 入力UIの統一（選択式中心）
+
+ 短答式は当面保留、基本は選択式に寄せる（スマホ操作最優先）
+
+ D01-U01/U02 の短答を選択肢化 or 並べ替え式に変更
+
+C. ビジュアル（教科書モード）
+
+ 図（SVG）プレースホルダ追加：
+
+こうかん法則：配列（3列×4行）と回転の図
+
+分配の考え：テープ図（横方向の分割）
+
+ 画像/図のレイアウト共通コンポーネント化（Figure）
+
+D. ナビ & 体験のスムーズ化
+
+ ページ末の「つぎへ」ボタン（採点後に有効化）
+
+ LessonNav をページ上部にも小さく配置（離脱低減）
+
+E. ふりがな精度UP（中）
+
+ 用語読みの辞書（被乗数/乗数/積/等分除/包含除…）をコード化
+
+ 名詞の誤読例の例外テーブルを追記
+
+F. ドキュメント & 開発者体験
+
+ /docs/devlog/2025-11-03.md（←このふりかえり）保存
+
+ /docs/hints.md：API仕様・モデル選定・運用メモ
+
+ .env.example 追加（OPENAI_API_KEY, OPENAI_PROJECT, HINT_MODEL）

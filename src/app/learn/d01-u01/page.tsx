@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Furigana from "@/components/Furigana";
 import { D01_U01, LessonBlock } from "@/content/d01-u01";
 import LessonNav from "@/components/LessonNav";
+import HintButton from "@/components/HintButton";
 
 export default function LessonD01U01() {
   const [furiganaOn, setFuriganaOn] = useState(false);
@@ -59,7 +60,15 @@ export default function LessonD01U01() {
             まるつけを したよ。まちがえた ところを なおそう。
           </span>
         )}
+
+        {/* 👇ここを新規追加：採点後だけ「次へ」導線 */}
+        {checked && (
+          <div className="pt-2 w-full">
+            <LessonNav currentId="D01-U01" />
+          </div>
+        )}
       </footer>
+
 
       {/* ← ここが重要：JSX 内、</main> の直前に置く */}
       <LessonNav currentId="D01-U01" />
@@ -126,6 +135,7 @@ function BlockView(props: {
                 <p className="mb-2">
                   <Furigana text={q.stem} enabled={furiganaOn} gradeMax={3} />
                 </p>
+                <HintButton qid={key} stem={q.stem} gradeMax={3} />
                 <div className="flex flex-wrap gap-2">
                   {q.choices.map((c) => {
                     const active = val === c;
